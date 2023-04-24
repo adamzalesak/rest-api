@@ -11,22 +11,22 @@ app.get("/", async (req: Request, res: Response) => {
   // if more than one query param is passed, return undefined
   const numParams = Object.values(req.query).filter((x) => x !== undefined);
   if (numParams.length > 1) {
-    res.send(undefined);
+    res.status(200).send(undefined);
   }
 
   if (queryAirportTemp) {
     const temp = await getCurrentTemperature(queryAirportTemp as string);
-    res.send(temp);
+    res.status(200).send(temp.toString());
   }
 
   if (queryStockPrice) {
     const price = await getStockPrice(queryStockPrice as string);
-    res.send(price);
+    res.status(200).send(price.toString());
   }
 
   if (queryEval) {
     const result = getQueryEvaluation(queryEval as string);
-    res.send(result);
+    res.status(200).send(result?.toString());
   }
 });
 
@@ -50,11 +50,14 @@ const getStockPrice = async (symbol: string) => {
   return data.quoteResponse.result[0].regularMarketPrice;
 };
 
-const getQueryEvaluation = (query: string) => {
-  const isValid = /^[0-9()+-/*]+$/.test(query);
-  if (isValid) {
-    return eval(query);
-  }
+const getQueryEvaluation = (query: string): number | undefined => {
+  const regex = /^[\d+\-*/()\s]+$/g;
+  if (!regex.test(query)) return undefined; // check if query has invalid characters
 
-  return undefined;
+  try {
+    const result = eval(query); // evaluate the expression
+    return typeof result === "number" ? result : undefined; // return result if it's a number
+  } catch {
+    return undefined; // return undefined if there's an error in evaluating the expression
+  }
 };
