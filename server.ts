@@ -1,6 +1,4 @@
-// express test server with one test endpoint (use typescript)
-import express from "express";
-import { Request, Response } from "express";
+import express, { Request, Response } from "express";
 
 const app = express();
 const port = process.env.PORT || 5000;
