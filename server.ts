@@ -16,12 +16,12 @@ app.get("/", async (req: Request, res: Response) => {
 
   if (queryAirportTemp) {
     const temp = await getCurrentTemperature(queryAirportTemp as string);
-    res.status(200).send(temp.toString());
+    res.status(200).send(temp?.toString());
   }
 
   if (queryStockPrice) {
     const price = await getStockPrice(queryStockPrice as string);
-    res.status(200).send(price.toString());
+    res.status(200).send(price?.toString());
   }
 
   if (queryEval) {
@@ -34,11 +34,21 @@ app.listen(port, () => {
   console.log(`listening on port ${port}`);
 });
 
-const getCurrentTemperature = async (place: string) => {
+const getCurrentTemperature = async (iata: string) => {
+  const longLatResult = await getAirportLongitudeAndLatitude(iata);
+  if (longLatResult === undefined) return undefined;
+  const [longitude, latitude] = longLatResult;
+
+  const place = `${latitude},${longitude}`;
+
   const response = await fetch(
     `http://api.weatherapi.com/v1/current.json?key=b476b3f2ae83466396e123214232404&q=${place}&aqi=no`
   );
   const data = await response.json();
+
+  if (data.error?.code) {
+    return undefined;
+  }
   return data.current.temp_c;
 };
 
@@ -60,4 +70,14 @@ const getQueryEvaluation = (query: string): number | undefined => {
   } catch {
     return undefined; // return undefined if there's an error in evaluating the expression
   }
+};
+
+const getAirportLongitudeAndLatitude = async (iata: string) => {
+  const response = await fetch(
+    `https://airport-data.com/api/ap_info.json?iata=${iata}`
+  );
+  const data = await response.json();
+
+  if (data === undefined) return undefined;
+  return [data.longitude as number, data.latitude as number];
 };
