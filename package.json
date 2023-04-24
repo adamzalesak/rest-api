@@ -11,6 +11,7 @@
   "name": "rest-api",
   "version": "1.0.0",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/server.js"
