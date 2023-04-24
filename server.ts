@@ -41,43 +41,56 @@ const getCurrentTemperature = async (iata: string) => {
 
   const place = `${latitude},${longitude}`;
 
-  const response = await fetch(
-    `http://api.weatherapi.com/v1/current.json?key=b476b3f2ae83466396e123214232404&q=${place}&aqi=no`
-  );
-  const data = await response.json();
+  try {
+    const response = await fetch(
+      `http://api.weatherapi.com/v1/current.json?key=b476b3f2ae83466396e123214232404&q=${place}&aqi=no`
+    );
+    const data = await response.json();
 
-  if (data.error?.code) {
+    if (data.error?.code) {
+      return undefined;
+    }
+
+    return data.current.temp_c;
+  } catch {
     return undefined;
   }
-  return data.current.temp_c;
 };
 
 const getStockPrice = async (symbol: string) => {
-  const response = await fetch(
-    `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`
-  );
-  const data = await response.json();
-  return data.quoteResponse.result[0].regularMarketPrice;
+  try {
+    const response = await fetch(
+      `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`
+    );
+    const data = await response.json();
+    return data.quoteResponse.result[0].regularMarketPrice;
+  } catch {
+    return undefined;
+  }
 };
 
 const getQueryEvaluation = (query: string): number | undefined => {
   const regex = /^[\d+\-*/()\s]+$/g;
-  if (!regex.test(query)) return undefined; // check if query has invalid characters
+  if (!regex.test(query)) return undefined;
 
   try {
-    const result = eval(query); // evaluate the expression
-    return typeof result === "number" ? result : undefined; // return result if it's a number
+    const result = eval(query);
+    return typeof result === "number" ? result : undefined;
   } catch {
-    return undefined; // return undefined if there's an error in evaluating the expression
+    return undefined;
   }
 };
 
 const getAirportLongitudeAndLatitude = async (iata: string) => {
-  const response = await fetch(
-    `https://airport-data.com/api/ap_info.json?iata=${iata}`
-  );
-  const data = await response.json();
+  try {
+    const response = await fetch(
+      `https://airport-data.com/api/ap_info.json?iata=${iata}`
+    );
+    const data = await response.json();
 
-  if (data === undefined) return undefined;
-  return [data.longitude as number, data.latitude as number];
+    if (data === undefined) return undefined;
+    return [data.longitude as number, data.latitude as number];
+  } catch {
+    return undefined;
+  }
 };
