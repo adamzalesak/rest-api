@@ -13,8 +13,7 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "build": "echo build",
-    "start": "ts-node app.ts"
+    "start": "ts-node --esm ./server.ts"
   },
   "author": "Adam Zálešák",
   "license": "ISC",
